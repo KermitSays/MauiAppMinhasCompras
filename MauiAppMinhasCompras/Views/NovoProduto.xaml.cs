@@ -25,8 +25,10 @@ public partial class NovoProduto : ContentPage, IQueryAttributable
             _produtoEmEdicao = produto;
 
             txtDescricao.Text = produto.Descricao;
+
             txtQuantidade.Text = produto.Quantidade.ToString(
                 CultureInfo.InvariantCulture);
+
             txtPreco.Text = produto.Preco.ToString(
                 CultureInfo.InvariantCulture);
 
@@ -99,6 +101,8 @@ public partial class NovoProduto : ContentPage, IQueryAttributable
             produto.Descricao = txtDescricao.Text.Trim();
             produto.Quantidade = quantidade;
             produto.Preco = preco;
+
+            await _database.Update(produto);
         }
         else
         {
@@ -108,9 +112,9 @@ public partial class NovoProduto : ContentPage, IQueryAttributable
                 Quantidade = quantidade,
                 Preco = preco
             };
-        }
 
-        await _database.SaveProdutoAsync(produto);
+            await _database.Insert(produto);
+        }
 
         await DisplayAlertAsync(
             "Sucesso",

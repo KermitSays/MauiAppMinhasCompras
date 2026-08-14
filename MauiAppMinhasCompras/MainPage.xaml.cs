@@ -26,7 +26,7 @@ public partial class MainPage : ContentPage
     {
         BarraPesquisa.Text = string.Empty;
 
-        var produtos = await _database.GetProdutosAsync();
+        var produtos = await _database.GetAll();
 
         ListaProdutos.ItemsSource = produtos;
 
@@ -35,10 +35,9 @@ public partial class MainPage : ContentPage
         LabelTotal.Text = $"Total: R$ {total:F2}";
     }
 
-
     private async void OnAdicionarProdutoClicked(
-    object sender,
-    EventArgs e)
+        object sender,
+        EventArgs e)
     {
         await Shell.Current.GoToAsync(
             nameof(NovoProduto));
@@ -83,18 +82,24 @@ public partial class MainPage : ContentPage
             return;
         }
 
-        await _database.DeleteProdutoAsync(produto);
+        await _database.Delete(produto.Id);
 
         await CarregarProdutos();
     }
 
     private async void OnPesquisaTextChanged(
-    object sender,
-    TextChangedEventArgs e)
+        object sender,
+        TextChangedEventArgs e)
     {
         string texto = e.NewTextValue ?? string.Empty;
 
-        var produtos = await _database.SearchAsync(texto);
+        if (string.IsNullOrWhiteSpace(texto))
+        {
+            await CarregarProdutos();
+            return;
+        }
+
+        var produtos = await _database.Search(texto);
 
         ListaProdutos.ItemsSource = produtos;
 
@@ -102,5 +107,4 @@ public partial class MainPage : ContentPage
 
         LabelTotal.Text = $"Total: R$ {total:F2}";
     }
-
 }

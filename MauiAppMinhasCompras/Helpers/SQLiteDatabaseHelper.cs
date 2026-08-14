@@ -1,80 +1,68 @@
-﻿using SQLite;
-using MauiAppMinhasCompras.Models;
+﻿using MauiAppMinhasCompras.Models;
+using SQLite;
 
 namespace MauiAppMinhasCompras.Helpers
 {
     public class SQLiteDatabaseHelper
     {
-        private readonly SQLiteAsyncConnection _database;
+        readonly SQLiteAsyncConnection _conn;
 
-        public SQLiteDatabaseHelper(string dbPath)
+        public SQLiteDatabaseHelper(string path)
         {
-            _database = new SQLiteAsyncConnection(dbPath);
+            _conn = new SQLiteAsyncConnection(path);
+
+            _conn.CreateTableAsync<Produto>().Wait();
         }
 
-        public async Task<List<Produto>> GetProdutosAsync()
+        // INSERT
+        public Task<int> Insert(Produto p)
         {
-            await Init();
-
-            return await _database.Table<Produto>().ToListAsync();
+            return _conn.InsertAsync(p);
         }
 
-        public async Task<Produto> GetProdutoAsync(int id)
+        // UPDATE
+        public Task<int> Update(Produto p)
         {
-            await Init();
+            string sql = @"
+                UPDATE Produto
+                SET Descricao = ?, Quantidade = ?, Preco = ?
+                WHERE Id = ?";
 
-            return await _database.Table<Produto>()
-                .Where(p => p.Id == id)
-                .FirstOrDefaultAsync();
+            return _conn.ExecuteAsync(
+                sql,
+                p.Descricao,
+                p.Quantidade,
+                p.Preco,
+                p.Id
+            );
         }
 
-        public async Task<int> SaveProdutoAsync(Produto produto)
+        // DELETE
+        public Task<int> Delete(int id)
         {
-            await Init();
-
-            if (produto.Id != 0)
-                return await _database.UpdateAsync(produto);
-
-            return await _database.InsertAsync(produto);
+            return _conn.Table<Produto>()
+                .DeleteAsync(i => i.Id == id);
         }
 
-        public async Task<int> DeleteProdutoAsync(Produto produto)
+        // GET ALL
+        public Task<List<Produto>> GetAll()
         {
-            await Init();
-
-            return await _database.DeleteAsync(produto);
-        }
-
-        private async Task Init()
-        {
-            if (_database == null)
-                return;
-
-            await _database.CreateTableAsync<Produto>();
-        }
-
-        public async Task<List<Produto>> SearchAsync(string texto)
-        {
-            await Init();
-
-            if (string.IsNullOrWhiteSpace(texto))
-            {
-                return await _database
-                    .Table<Produto>()
-                    .ToListAsync();
-            }
-
-            string textoPesquisa = texto.ToLower();
-
-            var produtos = await _database
-                .Table<Produto>()
+            return _conn.Table<Produto>()
                 .ToListAsync();
+        }
 
-            return produtos
-                .Where(p => p.Descricao
-                    .ToLower()
-                    .Contains(textoPesquisa))
-                .ToList();
+        // SEARCH
+        public Task<List<Produto>> Search(string q)
+        {
+            string sql = @"
+                SELECT *
+                FROM Produto
+                WHERE Descricao LIKE ?";
+
+            return _conn.QueryAsync<Produto>(
+                sql,
+                $"%{q}%"
+            );
         }
     }
 }
