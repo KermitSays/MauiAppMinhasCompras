@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="MauiAppMinhasCompras.MainPage"
+    Title="Minhas Compras">
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="20"
+            Spacing="15">
+
+            <Label
+                Text="Minhas Compras"
+                FontSize="32"
+                FontAttributes="Bold"
+                HorizontalOptions="Center" />
+
+            <SearchBar
+                x:Name="BarraPesquisa"
+                Placeholder="Pesquisar produto..."
+                TextChanged="OnPesquisaTextChanged" />
+
+            <Button
+                Text="Adicionar Produto"
+                Clicked="OnAdicionarProdutoClicked" />
+
+
+            <CollectionView
+                x:Name="ListaProdutos"
+                SelectionMode="None">
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+
+                        <Border
+                    Padding="15"
+                    Margin="0,5"
+                    StrokeShape="RoundRectangle 10">
+
+                            <Grid
+                        ColumnDefinitions="*,Auto,Auto"
+                        RowDefinitions="Auto,Auto,Auto">
+
+                                <Label
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Text="{Binding Descricao}"
+                            FontSize="20"
+                            FontAttributes="Bold" />
+
+                                <Label
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Text="{Binding Quantidade, StringFormat='Quantidade: {0}'}" />
+
+                                <Label
+                            Grid.Row="2"
+                            Grid.Column="0"
+                            Text="{Binding Preco, StringFormat='Preço: R$ {0:F2}'}" />
+
+                                <Label
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Grid.RowSpan="3"
+                            Text="{Binding Total, StringFormat='R$ {0:F2}'}"
+                            FontSize="18"
+                            VerticalOptions="Center"
+                            Margin="10,0" />
+
+                                <Button
+                            Grid.Row="0"
+                            Grid.Column="2"
+                            Text="Editar"
+                            Clicked="OnEditarClicked"
+                            CommandParameter="{Binding .}"
+                            Padding="10,5" />
+
+                                <Button
+                            Grid.Row="1"
+                            Grid.Column="2"
+                            Text="Excluir"
+                            Clicked="OnExcluirClicked"
+                            CommandParameter="{Binding .}"
+                            Padding="10,5" />
+
+                            </Grid>
+
+                        </Border>
+
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+
+
+
+            <Label
+                x:Name="LabelTotal"
+                Text="Total: R$ 0,00"
+                FontSize="22"
+                FontAttributes="Bold"
+                HorizontalOptions="End" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
